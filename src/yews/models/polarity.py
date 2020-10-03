@@ -20,7 +20,7 @@ class PolarityCNN(nn.Module):
     
     def __init__(self, **kwargs):
         super().__init__()
-        self.contains_unkown = kwargs["contains_unkown"]
+        self.contains_unknown = kwargs["contains_unknown"]
         self.features = nn.Sequential(
 
             # 300 -> 150
@@ -72,7 +72,7 @@ class PolarityCNN(nn.Module):
 
         )
         
-        if self.contains_unkown:
+        if self.contains_unknown:
             self.classifier = nn.Sequential(
                 nn.Linear(64 * 4, 3),
             )
@@ -92,7 +92,7 @@ class PolarityCNN(nn.Module):
 
 def polarity_cnn(pretrained=False, progress=True, **kwargs):
 
-    default_kwargs = {"contains_unkown":False}
+    default_kwargs = {"contains_unknown":False}
     for k,v in kwargs.items():
         if k in default_kwargs:
             default_kwargs[k] = v
@@ -117,13 +117,13 @@ class PolarityLSTM(nn.Module):
         input_size = 1
         self.hidden_size = kwargs["hidden_size"]
         self.bidirectional = kwargs["bidirectional"]
-        self.contains_unkown = kwargs["contains_unkown"]
+        self.contains_unknown = kwargs["contains_unknown"]
         self.start = kwargs['start']
         self.end = kwargs['end']
         self.num_layers = kwargs['num_layers']
         self.lstm = nn.LSTM(input_size, self.hidden_size, self.num_layers, 
                             bidirectional=self.bidirectional)
-        self.fc = nn.Linear(self.hidden_size * (2 if self.bidirectional else 1), 3 if self.contains_unkown else 2)
+        self.fc = nn.Linear(self.hidden_size * (2 if self.bidirectional else 1), 3 if self.contains_unknown else 2)
 
     def forward(self, x):
         x = x.narrow(2,self.start, self.end-self.start)
@@ -142,14 +142,14 @@ def polarity_lstm(**kwargs):
       start (default 250): start index of the subsequence
       end (default 350): end index of the subsequence
       bidirectional (default False): run lstm from left to right and from right to left
-      contains_unkown (default False): True if targets have 0,1,2
+      contains_unknown (default False): True if targets have 0,1,2
     """
     default_kwargs = {"hidden_size":64, 
                       "num_layers":2,
                       "start": 250,
                       "end": 350,
                       "bidirectional":False, 
-                      "contains_unkown":False}
+                      "contains_unknown":False}
     for k,v in kwargs.items():
         if k in default_kwargs:
             default_kwargs[k] = v
@@ -183,12 +183,12 @@ class PolarityCNNLSTM(nn.Module):
         input_size = 32
         self.hidden_size = kwargs["hidden_size"]
         self.bidirectional = kwargs["bidirectional"]
-        self.contains_unkown = kwargs["contains_unkown"]
+        self.contains_unknown = kwargs["contains_unknown"]
         self.start = kwargs['start']
         self.end = kwargs['end']
         self.num_layers = kwargs['num_layers']
         self.lstm = nn.LSTM(input_size, self.hidden_size, self.num_layers, bidirectional=self.bidirectional)
-        self.fc = nn.Linear(self.hidden_size * (2 if self.bidirectional else 1), 3 if self.contains_unkown else 2)
+        self.fc = nn.Linear(self.hidden_size * (2 if self.bidirectional else 1), 3 if self.contains_unknown else 2)
 
     def forward(self, x):
         out = self.features(x)
@@ -209,14 +209,14 @@ def polarity_cnn_lstm(**kwargs):
       start (default 0): start index of the subsequence
       end (default 75): end index of the subsequence
       bidirectional (default False): run lstm from left to right and from right to left
-      contains_unkown (default False): True if targets have 0,1,2
+      contains_unknown (default False): True if targets have 0,1,2
     """
     default_kwargs = {"hidden_size":64,
                       "num_layers":2,
                       "start": 0,
                       "end": 75,
                       "bidirectional":False,
-                      "contains_unkown":False}
+                      "contains_unknown":False}
     for k,v in kwargs.items():
       if k in default_kwargs:
         default_kwargs[k] = v
