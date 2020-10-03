@@ -18,8 +18,9 @@ class PolarityCNN(nn.Module):
     
     #https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py
     
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
+        self.contains_unkown = kwargs["contains_unkown"]
         self.features = nn.Sequential(
 
             # 300 -> 150
@@ -71,9 +72,15 @@ class PolarityCNN(nn.Module):
 
         )
         
-        self.classifier = nn.Sequential(
-            nn.Linear(64 * 4, 2),
-        )
+        if self.contains_unkown:
+            self.classifier = nn.Sequential(
+                nn.Linear(64 * 4, 3),
+            )
+        else:
+            self.classifier = nn.Sequential(
+                nn.Linear(64 * 4, 2),
+            )
+            
             
     def forward(self, x):
       
@@ -84,7 +91,15 @@ class PolarityCNN(nn.Module):
         return x
 
 def polarity_cnn(pretrained=False, progress=True, **kwargs):
-    model = PolarityCNN(**kwargs)
+
+    default_kwargs = {"contains_unkown":False}
+    for k,v in kwargs.items():
+        if k in default_kwargs:
+            default_kwargs[k] = v
+    print("#### model parameters ####")
+    print(default_kwargs)
+        
+    model = PolarityCNN(**default_kwargs)
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls['polarity_cnn'],progress=progress)
         model.load_state_dict(state_dict)        
